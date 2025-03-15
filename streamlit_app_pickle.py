@@ -72,11 +72,10 @@ if st.button('Predict All'):
                          Low_Gravity_SA, Drill_Solids_SA, R600, R300, R200, R100, R6, R3, Average_SG_Solids_SA]])
 
     # X_input'u pandas DataFrame'e dönüştürme
-    X_input_df = pd.DataFrame(X_input, columns=['Mud Weight', 'Yield Point', 'Chlorides', 'Solids', 'HTHP Fluid Loss',
-                                                'pH', 'NaCl (%vol)', 'KCl (%vol)', 'Low Gravity (%vol)',
-                                                'Drill Solids (%vol)', 'R600', 'R300', 'R200', 'R100', 'R6',
-                                                'R3', 'Average SG Solids'])
-
+    X_input_df = pd.DataFrame(X_input, columns=['Mud Weight, ppg', 'Yield Point, lbf/100 sqft', 'Chlorides, mg/L',
+                                                'Solids, %vol', 'HTHP Fluid Loss, cc/30min', 'pH', 'NaCl (SA), %vol',
+                                                'KCl (SA), %vol', 'Low Gravity (SA), %vol', 'Drill Solids (SA), %vol',
+                                                'R600', 'R300', 'R200', 'R100', 'R6', 'R3', 'Average SG Solids (SA)'])
     # Veriyi ölçeklendirme
     X_input_scaled = scaler.transform(X_input_df)
 
