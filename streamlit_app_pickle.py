@@ -5,14 +5,23 @@ import pandas as pd
 
 # Model dosyalarını yükleme
 with open('mf_model.pkl', 'rb') as f:
-    mf_model = pickle.load(f)
-
+    try:
+        mf_model = pickle.load(f)
+    except Exception as e:
+        st.error(f"Model yükleme hatası: {e}")
+        raise
 with open('pf_model.pkl', 'rb') as f:
-    pf_model = pickle.load(f)
-
+    try:
+        pf_model = pickle.load(f)
+    except Exception as e:
+        st.error(f"Model yükleme hatası: {e}")
+        raise
 with open('pm_model.pkl', 'rb') as f:
-    pm_model = pickle.load(f)
-
+    try:
+        pm_model = pickle.load(f)
+    except Exception as e:
+        st.error(f"Model yükleme hatası: {e}")
+        raise
 # Başlık
 st.title("Mud (Pm) and Filtrate (Pf and Mf) Prediction")
 
