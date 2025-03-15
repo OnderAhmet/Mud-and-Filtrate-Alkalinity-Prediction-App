@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 import pandas as pd
 
-# Pickle dosyalarını yükleme
+# Model dosyalarını yükleme
 with open('mf_model.pkl', 'rb') as f:
     mf_model = pickle.load(f)
 
@@ -37,7 +37,7 @@ R6 = st.number_input("R6", min_value=0.0)
 R3 = st.number_input("R3", min_value=0.0)
 Average_SG_Solids_SA = st.number_input("Average SG Solids", min_value=0.0)
 
-# `Mf_pred`'i global bir değişken olarak tutmak için
+# `Mf_pred`, `Pf_pred`, ve `Pm_pred`'i global bir değişken olarak tutmak için
 Mf_pred = None
 Pf_pred = None
 Pm_pred = None
