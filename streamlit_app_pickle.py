@@ -81,17 +81,17 @@ if st.button('Predict All'):
 
     # Mf modelinden tahmin yapın
     Mf_pred = mf_model.predict(X_input_scaled)  # XGB'nin DMatrix formatı ile
-    st.write(f"Predicted Mf: {round(Mf_pred[0], 2)}")  # Mf tahmini virgülden sonra 2 haneli
+    st.write(f"Predicted Mf: {Mf_pred[0]:.2f}")  # Mf tahmini virgülden sonra 2 haneli
 
     # Mf tahmininden Pf'yi tahmin etme
     X_input_pf = np.array([[Mf_pred[0]]])
     Pf_pred = pf_model.predict(X_input_pf)  # XGB'nin DMatrix formatı ile
-    st.write(f"Predicted Pf: {round(Pf_pred[0], 2)}")  # Pf tahmini virgülden sonra 2 haneli
+    st.write(f"Predicted Pf: {Pf_pred[0]:.2f}")  # Pf tahmini virgülden sonra 2 haneli
 
     # Mf tahmininden Pm'yi tahmin etme
     X_input_pm = np.array([[Mf_pred[0]]])
     Pm_pred = pm_model.predict(X_input_pm)  # XGB'nin DMatrix formatı ile
-    st.write(f"Predicted Pm: {round(Pm_pred[0], 2)}")  # Pm tahmini virgülden sonra 2 haneli
+    st.write(f"Predicted Pm: {Pm_pred[0]:.2f}")  # Pm tahmini virgülden sonra 2 haneli
 
 # 2. Yol: Excel dosyası yükleme
 st.subheader("Upload your input file in Excel format")
