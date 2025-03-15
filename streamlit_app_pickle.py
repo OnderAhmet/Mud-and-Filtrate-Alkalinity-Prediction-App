@@ -1,27 +1,24 @@
 import streamlit as st
-import pickle
+import xgboost as xgb  # xgboost'u yükledik
 import numpy as np
 import pandas as pd
 
 # Model dosyalarını yükleme
-with open('mf_model.pkl', 'rb') as f:
-    try:
-        mf_model = pickle.load(f)
-    except Exception as e:
-        st.error(f"Model yükleme hatası: {e}")
-        raise
-with open('pf_model.pkl', 'rb') as f:
-    try:
-        pf_model = pickle.load(f)
-    except Exception as e:
-        st.error(f"Model yükleme hatası: {e}")
-        raise
-with open('pm_model.pkl', 'rb') as f:
-    try:
-        pm_model = pickle.load(f)
-    except Exception as e:
-        st.error(f"Model yükleme hatası: {e}")
-        raise
+try:
+    # XGBoost modellerini yükleme
+    mf_model = xgb.Booster()  # XGBRegressor yerine Booster sınıfını kullandık
+    mf_model.load_model('mf_model.xgb')  # .xgb formatında kaydedilen modeli yükledik
+
+    pf_model = xgb.Booster()  # XGBRegressor yerine Booster sınıfını kullandık
+    pf_model.load_model('pf_model.xgb')  # .xgb formatında kaydedilen modeli yükledik
+
+    pm_model = xgb.Booster()  # XGBRegressor yerine Booster sınıfını kullandık
+    pm_model.load_model('pm_model.xgb')  # .xgb formatında kaydedilen modeli yükledik
+
+except Exception as e:
+    st.error(f"Model yükleme hatası: {e}")
+    raise
+
 # Başlık
 st.title("Mud (Pm) and Filtrate (Pf and Mf) Prediction")
 
@@ -58,17 +55,17 @@ if st.button('Predict All'):
                          Low_Gravity_SA, Drill_Solids_SA, R600, R300, R200, R100, R6, R3, Average_SG_Solids_SA]])
 
     # Mf modelinden tahmin yapın
-    Mf_pred = mf_model.predict(X_input)
+    Mf_pred = mf_model.predict(xgb.DMatrix(X_input))  # XGB'nin DMatrix formatı ile
     st.write(f"Predicted Mf: {round(Mf_pred[0], 2)}")  # Mf tahmini virgülden sonra 2 haneli
 
     # Mf tahmininden Pf'yi tahmin etme
     X_input_pf = np.array([[Mf_pred[0]]])
-    Pf_pred = pf_model.predict(X_input_pf)
+    Pf_pred = pf_model.predict(xgb.DMatrix(X_input_pf))  # XGB'nin DMatrix formatı ile
     st.write(f"Predicted Pf: {round(Pf_pred[0], 2)}")  # Pf tahmini virgülden sonra 2 haneli
 
     # Mf tahmininden Pm'yi tahmin etme
     X_input_pm = np.array([[Mf_pred[0]]])
-    Pm_pred = pm_model.predict(X_input_pm)
+    Pm_pred = pm_model.predict(xgb.DMatrix(X_input_pm))  # XGB'nin DMatrix formatı ile
     st.write(f"Predicted Pm: {round(Pm_pred[0], 2)}")  # Pm tahmini virgülden sonra 2 haneli
 
 # 2. Yol: Excel dosyası yükleme
@@ -84,14 +81,14 @@ if uploaded_file is not None:
             [[row['Mud Weight'], row['Yield Point'], row['Chlorides'], row['Solids'], row['HTHP Fluid Loss'],
               row['pH'], row['NaCl (SA)'], row['KCl (SA)'], row['Low Gravity (SA)'], row['Drill Solids (SA)'],
               row['R600'], row['R300'], row['R200'], row['R100'], row['R6'], row['R3'], row['Average SG Solids (SA)']]])
-        Mf_pred = mf_model.predict(X_input)
+        Mf_pred = mf_model.predict(xgb.DMatrix(X_input))  # XGB'nin DMatrix formatı ile
         df.loc[index, 'Mf'] = Mf_pred[0]
 
         X_input_pf = np.array([[Mf_pred[0]]])
-        Pf_pred = pf_model.predict(X_input_pf)
+        Pf_pred = pf_model.predict(xgb.DMatrix(X_input_pf))  # XGB'nin DMatrix formatı ile
         df.loc[index, 'Pf'] = Pf_pred[0]
 
-        Pm_pred = pm_model.predict(X_input_pf)
+        Pm_pred = pm_model.predict(xgb.DMatrix(X_input_pf))  # XGB'nin DMatrix formatı ile
         df.loc[index, 'Pm'] = Pm_pred[0]
 
     # Sonuçları yeni bir Excel dosyasına kaydetme
