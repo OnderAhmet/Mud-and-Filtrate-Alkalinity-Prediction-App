@@ -19,7 +19,7 @@ try:
     pm_model = xgb.XGBRegressor()
     pm_model.load_model('pm_model.xgb')
 except Exception as e:
-    st.error(f"pm_model yükleme hatası: {e}")
+    st.error(f"pm_model yüklenmesi hatası: {e}")
     raise
 
 # pf_model için pickle ile Random Forest modelini yükleyin
@@ -33,7 +33,7 @@ except Exception as e:
 try:
     scaler = pickle.load(open('scaler.pkl', 'rb'))  # Eğitimde kullanılan scaler'ı yükle
 except Exception as e:
-    st.error(f"Scaler yükleme hatası: {e}")
+    st.error(f"Scaler yüklenmesi hatası: {e}")
     raise
 
 # Başlık
@@ -71,7 +71,14 @@ if st.button('Predict All'):
     X_input = np.array([[Mud_Weight, Yield_Point, Chlorides, Solids, HTHP_Fluid_Loss, pH, NaCl_SA, KCl_SA,
                          Low_Gravity_SA, Drill_Solids_SA, R600, R300, R200, R100, R6, R3, Average_SG_Solids_SA]])
 
-    X_input_scaled = scaler.transform(X_input)
+    # X_input'u pandas DataFrame'e dönüştürme
+    X_input_df = pd.DataFrame(X_input, columns=['Mud Weight', 'Yield Point', 'Chlorides', 'Solids', 'HTHP Fluid Loss',
+                                                'pH', 'NaCl (%vol)', 'KCl (%vol)', 'Low Gravity (%vol)',
+                                                'Drill Solids (%vol)', 'R600', 'R300', 'R200', 'R100', 'R6',
+                                                'R3', 'Average SG Solids'])
+
+    # Veriyi ölçeklendirme
+    X_input_scaled = scaler.transform(X_input_df)
 
     # Mf modelinden tahmin yapın
     Mf_pred = mf_model.predict(X_input_scaled)  # XGB'nin DMatrix formatı ile
@@ -100,14 +107,24 @@ if uploaded_file is not None:
             [[row['Mud Weight'], row['Yield Point'], row['Chlorides'], row['Solids'], row['HTHP Fluid Loss'],
               row['pH'], row['NaCl (SA)'], row['KCl (SA)'], row['Low Gravity (SA)'], row['Drill Solids (SA)'],
               row['R600'], row['R300'], row['R200'], row['R100'], row['R6'], row['R3'], row['Average SG Solids (SA)']]])
-        Mf_pred = mf_model.predict(X_input)  # DMatrix kullanmaya gerek yok, doğrudan NumPy array ile çalışırformatı ile
+
+        # Veriyi pandas DataFrame'e dönüştürme
+        X_input_df = pd.DataFrame(X_input, columns=['Mud Weight', 'Yield Point', 'Chlorides', 'Solids', 'HTHP Fluid Loss',
+                                                    'pH', 'NaCl (%vol)', 'KCl (%vol)', 'Low Gravity (%vol)',
+                                                    'Drill Solids (%vol)', 'R600', 'R300', 'R200', 'R100', 'R6',
+                                                    'R3', 'Average SG Solids'])
+
+        # Veriyi ölçeklendirme
+        X_input_scaled = scaler.transform(X_input_df)
+
+        Mf_pred = mf_model.predict(X_input_scaled)  # DMatrix kullanmaya gerek yok, doğrudan NumPy array ile çalışır
         df.loc[index, 'Mf'] = Mf_pred[0]
 
         X_input_pf = np.array([[Mf_pred[0]]])
         Pf_pred = pf_model.predict(X_input_pf)  # XGB'nin DMatrix formatı ile
         df.loc[index, 'Pf'] = Pf_pred[0]
 
-        Pm_pred = pm_model.predict(X_input_pf)   # XGB'nin DMatrix formatı ile
+        Pm_pred = pm_model.predict(X_input_pf)  # XGB'nin DMatrix formatı ile
         df.loc[index, 'Pm'] = Pm_pred[0]
 
     # Sonuçları yeni bir Excel dosyasına kaydetme
