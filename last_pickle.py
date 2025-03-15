@@ -33,6 +33,9 @@ xgb_mf.fit(X_train_mf, y_train_mf)
 # Modeli kaydetme
 xgb_mf.get_booster().save_model('mf_model.xgb')  # .xgb formatında kaydedildi
 
+with open('scaler.pkl', 'wb') as f:
+    pickle.dump(preprocessor_mf, f)
+
 # PF modelini eğitme ve save_model ile kaydetme
 file_path_pf = 'C:/Users/ITU/Desktop/MUD_Project/ML_data_cleaned_Pf_Prediction.xlsx'
 df_pf = pd.read_excel(file_path_pf)

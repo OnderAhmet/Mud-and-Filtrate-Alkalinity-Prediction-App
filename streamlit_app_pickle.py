@@ -3,6 +3,7 @@ import xgboost as xgb  # xgboost'u yükledik
 import numpy as np
 import pandas as pd
 import pickle
+from sklearn.preprocessing import StandardScaler
 
 # mf_model ve pm_model XGBoost kullanılarak .xgb formatında kaydedildiği için XGBoost ile yükleyin
 try:
@@ -28,6 +29,13 @@ try:
 except Exception as e:
     st.error(f"pf_model yükleme hatası: {e}")
     raise
+
+try:
+    scaler = pickle.load(open('scaler.pkl', 'rb'))  # Eğitimde kullanılan scaler'ı yükle
+except Exception as e:
+    st.error(f"Scaler yükleme hatası: {e}")
+    raise
+
 # Başlık
 st.title("Mud (Pm) and Filtrate (Pf and Mf) Prediction")
 
@@ -63,8 +71,10 @@ if st.button('Predict All'):
     X_input = np.array([[Mud_Weight, Yield_Point, Chlorides, Solids, HTHP_Fluid_Loss, pH, NaCl_SA, KCl_SA,
                          Low_Gravity_SA, Drill_Solids_SA, R600, R300, R200, R100, R6, R3, Average_SG_Solids_SA]])
 
+    X_input_scaled = scaler.transform(X_input)
+
     # Mf modelinden tahmin yapın
-    Mf_pred = mf_model.predict(X_input)  # XGB'nin DMatrix formatı ile
+    Mf_pred = mf_model.predict(X_input_scaled)  # XGB'nin DMatrix formatı ile
     st.write(f"Predicted Mf: {round(Mf_pred[0], 2)}")  # Mf tahmini virgülden sonra 2 haneli
 
     # Mf tahmininden Pf'yi tahmin etme
