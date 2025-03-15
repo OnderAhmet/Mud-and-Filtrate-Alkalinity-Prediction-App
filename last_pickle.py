@@ -27,8 +27,10 @@ X_mf_transformed = preprocessor_mf.fit_transform(X_mf)
 
 X_train_mf, X_test_mf, y_train_mf, y_test_mf = train_test_split(X_mf_transformed, y_mf, test_size=0.2, random_state=42)
 
-xgb_mf = XGBRegressor(n_estimators=450, learning_rate=0.1, max_depth=5, reg_alpha=1, reg_lambda=10)
+xgb_mf = XGBRegressor(n_estimators=450, learning_rate=0.1, max_depth=5, reg_alpha=1, reg_lambda=10, tree_method='hist')
 xgb_mf.fit(X_train_mf, y_train_mf)
+
+xgb_mf.save_model('mf_model.json')
 
 with open('mf_model.pkl', 'wb') as f:
     pickle.dump(xgb_mf, f)
@@ -57,8 +59,10 @@ y_pm = df_pm['Alkal Mud (Pm)'].values
 
 X_train_pm, X_test_pm, y_train_pm, y_test_pm = train_test_split(X_pm, y_pm, test_size=0.2, random_state=42)
 
-xgb_model = XGBRegressor(max_depth=3, n_estimators=200, learning_rate=0.05, random_state=42)
+xgb_model = XGBRegressor(max_depth=3, n_estimators=200, learning_rate=0.05, random_state=42, tree_method='hist')
 xgb_model.fit(X_train_pm, y_train_pm)
+
+xgb_model.save_model('pm_model.json')
 
 with open('pm_model.pkl', 'wb') as f:
     pickle.dump(xgb_model, f)
