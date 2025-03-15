@@ -5,4 +5,4 @@ scikit-learn==1.6.1
 openpyxl==3.0.9
 setuptools>=58.0.0
 altair==4.2.0
-
+xgboost==1.7.5
