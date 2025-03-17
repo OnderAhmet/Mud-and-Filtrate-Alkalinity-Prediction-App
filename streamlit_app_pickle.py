@@ -11,7 +11,7 @@ st.title("Mud (Pm) and Filtrate (Pf and Mf) Prediction")
 # Bilgi Bölümü (Sol Tarafa)
 st.sidebar.subheader("About this App")
 st.sidebar.write("""
-    This app is developed as part of the thesis titled **DEVELOPMENT OF DATA-DRIVEN MODELS FOR ESTIMATING MUD AND FILTRATE ALKALINITY USING MACHINE LEARNING APPLICATIONS**.
+    This app is developed as part of the thesis titled **'Development of Data-Driven Models for Estimating Mud and Filtrate Alkalinity Using Machine Learning Applications'**.
     The thesis is written by **Ahmet Önder**, under the supervision of **Dr. Burak Kulga** and co-advisor **Dr. Sercan Gul**.
 """)
 
