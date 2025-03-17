@@ -8,10 +8,10 @@ from sklearn.preprocessing import StandardScaler
 # Uygulama Başlığı
 st.title("Mud (Pm) and Filtrate (Pf and Mf) Prediction")
 
-# Bilgi Bölümü
-st.subheader("About this App")
-st.write("""
-    This app is developed as part of the thesis titled **'DEVELOPMENT OF DATA-DRIVEN MODELS FOR ESTIMATING MUD AND FILTRATE ALKALINITY USING MACHINE LEARNING APPLICATIONS**.
+# Bilgi Bölümü (Sol Tarafa)
+st.sidebar.subheader("About this App")
+st.sidebar.write("""
+    This app is developed as part of the thesis titled **DEVELOPMENT OF DATA-DRIVEN MODELS FOR ESTIMATING MUD AND FILTRATE ALKALINITY USING MACHINE LEARNING APPLICATIONS**.
     The thesis is written by **Ahmet Önder**, under the supervision of **Dr. Burak Kulga** and co-advisor **Dr. Sercan Gul**.
 """)
 
@@ -45,29 +45,36 @@ except Exception as e:
 
 # Parametre Giriş Alanı
 st.subheader("Input Parameters")
+
+# İki Kolonlu Düzen
 col1, col2 = st.columns(2)  # İki sütunlu düzen
+
+# Sol Kolon (pH ve R300 birlikte)
 with col1:
     Mud_Weight = st.number_input("Mud Weight, ppg", min_value=0.0)
-    Yield_Point = st.number_input("Yield Point, lbf/100 sqft", min_value=0.0)
     Chlorides = st.number_input("Chlorides, mg/L", min_value=0.0)
-    Solids = st.number_input("Solids, %vol", min_value=0.0)
     HTHP_Fluid_Loss = st.number_input("HTHP Fluid Loss, cc/30min", min_value=0.0)
-    pH = st.number_input("pH", min_value=0.0)
-with col2:
     NaCl_SA = st.number_input("NaCl (SA), %vol", min_value=0.0)
-    KCl_SA = st.number_input("KCl (SA), %vol", min_value=0.0)
     Low_Gravity_SA = st.number_input("Low Gravity (SA), %vol", min_value=0.0)
-    Drill_Solids_SA = st.number_input("Drill Solids (SA), %vol", min_value=0.0)
     R600 = st.number_input("R600", min_value=0.0)
-    R300 = st.number_input("R300", min_value=0.0)
     R200 = st.number_input("R200", min_value=0.0)
-    R100 = st.number_input("R100", min_value=0.0)
     R6 = st.number_input("R6", min_value=0.0)
-    R3 = st.number_input("R3", min_value=0.0)
     Average_SG_Solids_SA = st.number_input("Average SG Solids (SA)", min_value=0.0)
 
+# Sağ Kolon (R300, R200, R100 gibi parametreler)
+with col2:
+    Yield_Point = st.number_input("Yield Point, lbf/100 sqft", min_value=0.0)
+    Solids = st.number_input("Solids, %vol", min_value=0.0)
+    pH = st.number_input("pH", min_value=0.0)
+    KCl_SA = st.number_input("KCl (SA), %vol", min_value=0.0)
+    Drill_Solids_SA = st.number_input("Drill Solids (SA), %vol", min_value=0.0)
+    R300 = st.number_input("R300", min_value=0.0)
+    R100 = st.number_input("R100", min_value=0.0)
+    R3 = st.number_input("R3", min_value=0.0)
+
+
 # Tahmin Butonu
-if st.button('Predict All'):
+if st.button('Predict'):
     X_input = np.array([[Mud_Weight, Yield_Point, Chlorides, Solids, HTHP_Fluid_Loss, pH, NaCl_SA, KCl_SA,
                          Low_Gravity_SA, Drill_Solids_SA, R600, R300, R200, R100, R6, R3, Average_SG_Solids_SA]])
 
