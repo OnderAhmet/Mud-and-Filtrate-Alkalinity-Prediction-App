@@ -3,16 +3,15 @@ import xgboost as xgb
 import numpy as np
 import pandas as pd
 import pickle
-from functools import lru_cache
 
 # ---------------------------
-# 0) Basic setup
+# Basic setup
 # ---------------------------
 st.set_page_config(page_title="Mud & Filtrate Alkalinity", layout="wide")
 st.title("Mud (Pm) and Filtrate (Pf & Mf) Prediction")
 
 # ---------------------------
-# 1) Sidebar info (kept)
+# Sidebar info (kept)
 # ---------------------------
 st.sidebar.subheader("About this App")
 st.sidebar.write("""
@@ -21,9 +20,9 @@ The thesis is written by **Ahmet Önder**, under the supervision of **Dr. Burak 
 """)
 
 # ---------------------------
-# 2) Lazy model loading
+# Lazy model loading (Streamlit 1.13 compatible)
 # ---------------------------
-@st.cache_resource(show_spinner=False)
+@st.cache(allow_output_mutation=True)
 def load_models_and_scaler():
     mf_model = xgb.XGBRegressor()
     mf_model.load_model('mf_model.xgb')
@@ -40,7 +39,7 @@ def load_models_and_scaler():
     return mf_model, pm_model, pf_model, scaler
 
 # ---------------------------
-# 3) Input parameters
+# Inputs
 # ---------------------------
 col1, col2 = st.columns(2)
 with col1:
@@ -65,7 +64,7 @@ with col2:
     R3 = st.number_input("R3", min_value=0.0, value=0.0)
 
 # ---------------------------
-# 4) Prediction
+# Prediction
 # ---------------------------
 if st.button('Predict'):
     mf_model, pm_model, pf_model, scaler = load_models_and_scaler()
