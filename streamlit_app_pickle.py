@@ -6,24 +6,13 @@ import pickle
 from functools import lru_cache
 
 # ---------------------------
-# 0) Landing: hafif ve herkese açık
+# 0) Basic setup
 # ---------------------------
 st.set_page_config(page_title="Mud & Filtrate Alkalinity", layout="wide")
 st.title("Mud (Pm) and Filtrate (Pf & Mf) Prediction")
-st.caption("Public landing — uygulama burada hafif başlar; tahminler butonla yüklenir.")
-
-# Embed (iframe) tespiti: embed'ten uyandırma güvenilmez olabilir → yeni sekmeye yönlendir
-qp = st.query_params
-if qp.get('embed') == ['true']:
-    st.warning("Bu sayfa gömülü (embed) açıldı. Kararlılık için yeni sekmede aç.")
-    st.link_button(
-        "Yeni sekmede aç",
-        "https://mud-and-filtrate-alkalinity-prediction.streamlit.app/"
-    )
-    st.stop()
 
 # ---------------------------
-# 1) Sidebar bilgi
+# 1) Sidebar info (kept)
 # ---------------------------
 st.sidebar.subheader("About this App")
 st.sidebar.write("""
@@ -32,7 +21,7 @@ The thesis is written by **Ahmet Önder**, under the supervision of **Dr. Burak 
 """)
 
 # ---------------------------
-# 2) MODELLERİ LAZY LOAD + CACHE
+# 2) Lazy model loading
 # ---------------------------
 @st.cache_resource(show_spinner=False)
 def load_models_and_scaler():
@@ -50,19 +39,9 @@ def load_models_and_scaler():
 
     return mf_model, pm_model, pf_model, scaler
 
-def safe_load_models():
-    try:
-        with st.spinner("Modeller yükleniyor..."):
-            return load_models_and_scaler()
-    except Exception as e:
-        st.error(f"Model/scaler yüklenemedi: {e}")
-        return None, None, None, None
-
 # ---------------------------
-# 3) Giriş parametreleri (hafif)
+# 3) Input parameters
 # ---------------------------
-st.subheader("Input Parameters")
-
 col1, col2 = st.columns(2)
 with col1:
     Mud_Weight = st.number_input("Mud Weight, ppg", min_value=0.0, value=0.0)
@@ -86,30 +65,28 @@ with col2:
     R3 = st.number_input("R3", min_value=0.0, value=0.0)
 
 # ---------------------------
-# 4) Tek satır tahmin — butonla çalıştır (ilk anda model yüklenmez)
+# 4) Prediction
 # ---------------------------
 if st.button('Predict'):
-    mf_model, pm_model, pf_model, scaler = safe_load_models()
-    if mf_model is not None:
-        X_input = np.array([[
-            Mud_Weight, Yield_Point, Chlorides, Solids, HTHP_Fluid_Loss, pH, NaCl_SA, KCl_SA,
-            Low_Gravity_SA, Drill_Solids_SA, R600, R300, R200, R100, R6, R3, Average_SG_Solids_SA
-        ]])
+    mf_model, pm_model, pf_model, scaler = load_models_and_scaler()
 
-        X_input_df = pd.DataFrame(X_input, columns=[
-            'Mud Weight, ppg', 'Yield Point, lbf/100 sqft', 'Chlorides, mg/L',
-            'Solids, %vol', 'HTHP Fluid Loss, cc/30min', 'pH', 'NaCl (SA), %vol',
-            'KCl (SA), %vol', 'Low Gravity (SA), %vol', 'Drill Solids (SA), %vol',
-            'R600', 'R300', 'R200', 'R100', 'R6', 'R3', 'Average SG Solids (SA)'
-        ])
+    X_input = np.array([[
+        Mud_Weight, Yield_Point, Chlorides, Solids, HTHP_Fluid_Loss, pH, NaCl_SA, KCl_SA,
+        Low_Gravity_SA, Drill_Solids_SA, R600, R300, R200, R100, R6, R3, Average_SG_Solids_SA
+    ]])
 
-        X_input_scaled = scaler.transform(X_input_df)
+    X_input_df = pd.DataFrame(X_input, columns=[
+        'Mud Weight, ppg', 'Yield Point, lbf/100 sqft', 'Chlorides, mg/L',
+        'Solids, %vol', 'HTHP Fluid Loss, cc/30min', 'pH', 'NaCl (SA), %vol',
+        'KCl (SA), %vol', 'Low Gravity (SA), %vol', 'Drill Solids (SA), %vol',
+        'R600', 'R300', 'R200', 'R100', 'R6', 'R3', 'Average SG Solids (SA)'
+    ])
 
-        Mf_pred = mf_model.predict(X_input_scaled)
-        st.write(f"**Predicted Mf:** {Mf_pred[0]:.2f}")
+    X_scaled = scaler.transform(X_input_df)
+    Mf_pred = mf_model.predict(X_scaled)
+    Pf_pred = pf_model.predict(np.array([[Mf_pred[0]]]))
+    Pm_pred = pm_model.predict(np.array([[Mf_pred[0]]]))
 
-        Pf_pred = pf_model.predict(np.array([[Mf_pred[0]]]))
-        st.write(f"**Predicted Pf:** {Pf_pred[0]:.2f}")
-
-        Pm_pred = pm_model.predict(np.array([[Mf_pred[0]]]))
-        st.write(f"**Predicted Pm:** {Pm_pred[0]:.2f}")
+    st.subheader(f"Predicted Mf: {Mf_pred[0]:.2f}")
+    st.subheader(f"Predicted Pf: {Pf_pred[0]:.2f}")
+    st.subheader(f"Predicted Pm: {Pm_pred[0]:.2f}")
