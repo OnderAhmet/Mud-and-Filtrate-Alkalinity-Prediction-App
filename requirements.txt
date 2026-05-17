@@ -23,7 +23,7 @@ narwhals==1.30.0
 numpy==1.26.0
 openpyxl==3.0.9
 packaging==24.2
-pandas==1.4.2
+pandas==2.2.3
 pillow==11.1.0
 protobuf==3.20.3
 pyarrow==19.0.1
